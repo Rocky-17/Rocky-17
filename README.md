@@ -4,8 +4,8 @@
 Rocky17@foxmail.com
 
 ## 📕**Blog**  
-[读书笔记]()  
-[面试知识点解析]()
+[读书笔记](https://rocky-17.github.io/)  
+[面试知识点解析](https://github.com/Rocky-17/Blog/tree/main/%E9%9D%A2%E8%AF%95%E7%9F%A5%E8%AF%86%E7%82%B9%E8%A7%A3%E6%9E%90)
 
 
 
