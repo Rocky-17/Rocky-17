@@ -32,3 +32,12 @@ with value {
   "frequency": "monthly",  
   "start_date": "2025-10-15"  
 }
+Create a monthly budget plan for Bobby.
+
+Include essential recurring expenses like:
+
+- Utilities: $150
+- Food: $600
+- Financial support to Alice: $1000 to account 94923054 starting 2025-10-15, paid monthly, use account 999999
+
+Use structured data for each item if possible.
