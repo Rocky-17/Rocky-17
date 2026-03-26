@@ -278,3 +278,117 @@ await new Promise(r => setTimeout(r, 500)) // use waitFor() instead
 
 // ❌ Asserting on exact classnames
 expect(el).toHaveClass('text-red-500') // test the behavior that class produces
+
+
+
+
+# Code Review Rules — TypeScript / Next.js
+
+## As an Author
+
+- Keep PRs small and focused — one concern per PR.
+- Write a clear PR description: what changed, why, and how to test it.
+- Self-review your diff before requesting review — catch obvious issues yourself.
+- Never submit code with unresolved `TODO` / `FIXME` unless tracked in an issue.
+- All tests must pass and new code must have test coverage before requesting review.
+
+## As a Reviewer
+
+- Review the intent first, then the implementation.
+- Be specific — point to the exact line, explain why it's an issue, suggest a fix.
+- Distinguish between blocking issues and non-blocking suggestions:
+  - `[blocking]` Must be fixed before merge
+  - `[suggestion]` Nice to have, author's call
+  - `[nit]` Minor style/preference, non-blocking
+- Approve only when you'd be comfortable maintaining this code yourself.
+- Aim to respond within one business day.
+
+## What to Check
+
+### Correctness
+- [ ] Does the code do what the PR description claims?
+- [ ] Are all edge cases handled? (empty arrays, null, network failure, 0, negative numbers)
+- [ ] Are errors caught and handled — nothing swallowed silently?
+- [ ] No race conditions or stale closure issues in async code?
+
+### Type Safety
+- [ ] No `any` — use `unknown` + narrowing or a proper type
+- [ ] No unsafe `as` casts — data from APIs must be validated with Zod
+- [ ] No non-null assertions `!` without an explanatory comment
+- [ ] Return types are explicit on all exported functions
+
+### React & Next.js
+- [ ] No unnecessary `"use client"` — default to Server Components
+- [ ] No `useEffect` used for data fetching — use server-side fetch instead
+- [ ] No stale closures inside `useEffect` — deps array is complete and correct
+- [ ] `<Suspense>` boundary exists for every async Server Component
+- [ ] `error.tsx` exists for every route segment that fetches data
+- [ ] `next/image` used instead of `<img>`, with `alt`, `width`, `height`
+- [ ] `next/link` used instead of `<a>` for internal navigation
+- [ ] No secrets stored in `NEXT_PUBLIC_` env vars
+
+### Performance
+- [ ] No unnecessary re-renders — no inline objects/arrays/functions in JSX props
+- [ ] Large lists are virtualized or paginated
+- [ ] Heavy computations are memoized with `useMemo` where justified
+- [ ] Images are optimized and lazy-loaded
+- [ ] No redundant network requests — data is fetched once and passed as props
+
+### Security
+- [ ] No user input rendered as raw HTML (`dangerouslySetInnerHTML`)
+- [ ] No sensitive data (tokens, keys, PII) logged to the console
+- [ ] All user inputs are validated on the server — never trust client-only validation
+- [ ] Auth checks happen server-side, not just in UI conditionals
+
+### Readability
+- [ ] Function and variable names clearly describe their purpose
+- [ ] No single-letter variables outside of short loop counters
+- [ ] Complex logic has an explanatory comment (the "why", not the "what")
+- [ ] No dead code, commented-out blocks, or debug statements
+
+### Tests
+- [ ] New behavior has test coverage
+- [ ] Bug fixes include a regression test
+- [ ] Tests are testing behavior, not implementation details
+- [ ] No flaky patterns: no `setTimeout`, no hardcoded waits, tests are order-independent
+
+## Common Blocking Issues
+
+```ts
+// ❌ Unsafe cast — always parse instead
+const user = res.json() as User
+
+// ❌ Silently swallowed error
+try { await saveUser() } catch {}
+
+// ❌ Missing dependency in useEffect
+useEffect(() => { fetchUser(userId) }, []) // userId missing from deps
+
+// ❌ Secret in public env var
+const key = process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY
+
+// ❌ Inline object causes re-render on every render
+<Component style={{ padding: 8 }} />
+
+// ❌ Raw HTML from user input
+<div dangerouslySetInnerHTML={{ __html: userInput }} />
+
+
+PR Size Guidelines
+
+
+
+|Size  |Lines changed           |Expectation                                            |
+|------|------------------------|-------------------------------------------------------|
+|Small |< 200                   |Preferred. Fast to review.                             |
+|Medium|200–500                 |Acceptable with clear description.                     |
+|Large |[500–1000](tel:500-1000)|Break it up if possible. Requires detailed description.|
+|XL    |> 1000                  |Must be justified. Consider splitting into stacked PRs.|
+
+Definition of Done
+A PR is ready to merge when:
+	∙	All blocking review comments are resolved
+	∙	CI passes (lint, type-check, tests)
+	∙	At least one approving review
+	∙	No unresolved conversations
+	∙	AGENTS.md updated if a new recurring mistake was discovered
